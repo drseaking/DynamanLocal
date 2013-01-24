@@ -16,6 +16,8 @@
 #include "Graphics.h"
 #include <curses.h>
 
+#include "Test.h"
+
 
 
 //----------------------------------------------------------------------------//
@@ -30,6 +32,7 @@
 
 int main (int argc, char** argv)
 {
+	log("Beginning Main Function");
 	initscr();				// Init nCurses
 	start_color();			// Enable color
 
@@ -42,5 +45,7 @@ int main (int argc, char** argv)
 	game.Menu();			// Start the game
 
 	endwin();				// Close nCurses
+
+	log("Ending Main Function");
 	return 0;				// Exit application
 }

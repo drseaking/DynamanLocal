@@ -23,7 +23,7 @@
 #include "Random.h"
 
 #include "WorldBuilder.h"
-
+#include "Test.h"
 
 
 //----------------------------------------------------------------------------//
@@ -35,6 +35,7 @@
 
 void Game::Menu (void)
 {
+	log("Entering Menu Function");
 	while (true)
 	{
 		// Draw menu
@@ -54,6 +55,7 @@ void Game::Menu (void)
 
 void Game::NormalGame (void)
 {
+	log("Beginning NormalGame");
 	//----------------------------------------------------------------------------//
 	// Startup                                                                    //
 	//----------------------------------------------------------------------------//
@@ -77,6 +79,7 @@ void Game::NormalGame (void)
 	mPlayer = new Player (mWorld);
 	mWorld->SetPlayer (mPlayer);
 
+	log("Creating World");
 	WorldBuilder::CreateWorld (mWorld, mStage);
 
 	uint32 w = (uint32) (mWorld->GetWidth () * 2.5f);
@@ -98,16 +101,20 @@ void Game::NormalGame (void)
 	// Game Loop                                                                  //
 	//----------------------------------------------------------------------------//
 
+	log("Beginning Game Loop");
 	while (true)
 	{
+		log("Beginning of Game Loop");
 		mPressed = getch();
 		mElapsed = (uint32) (clock() * res) - mLastUpdate;
 
 		if (mPressed != ERR)
 		{
+			log("Checking User Input");
 			// Handle escape, pause game
 			if (mPressed == 27)
 			{
+				log("Handling Escape keypress");
 				mvprintw (h+2, w-18, "GAME PAUSED, PRESS ANY KEY TO RESUME");
 				mvprintw (h+3, w-17, "Press Q to return to the main menu"); refresh();
 				timeout (-1); mPressed = getch(); timeout (0);
@@ -118,11 +125,15 @@ void Game::NormalGame (void)
 			}
 
 			// Handle player control
-			else mPlayer->KeyPress (mPressed);
+			else { 
+				log("Directing User Input to Player class");
+				mPlayer->KeyPress (mPressed);
+			}
 		}
 
 		if (mElapsed > 15)
 		{
+			log("Performing AI update/redraw");
 			// Update the game world
 			mWorld->Update (mElapsed);
 
@@ -148,11 +159,14 @@ void Game::NormalGame (void)
 			mLastUpdate = (uint32) (clock() * res);
 		}
 
+		log("Checking Player State");
 		// Check player status
 		if (!mPlayer->IsAlive())
 		{
+			log("Player is dead... Do they have Health Pack?");
 			if (mPlayer->GetHealthpacks() != 0)
 			{
+				log("Using Healthpack-- Rebuilding World");
 				mvprintw (h+2, w-18, "YOU HAVE DIED, PRESS ENTER TO RESPAWN");
 				mvprintw (h+3, w-14, "You have %d respawns remaining", mPlayer->GetHealthpacks()); refresh();
 				timeout (-1); while (getch() != '\n'); timeout (0);
@@ -167,6 +181,7 @@ void Game::NormalGame (void)
 
 			else
 			{
+				log("Player has Died");
 				mvprintw (h+2, w-14, "YOU HAVE DIED, GAME OVER :-(");
 				mvprintw (h+3, w-16, "Press ENTER to return to the menu"); refresh();
 				timeout (-1); while (getch() != '\n'); timeout (0);
@@ -180,6 +195,7 @@ void Game::NormalGame (void)
 		// Check if hatch was found (or if secret key was pressed)
 		elif (mPlayer->IsHatchFound() || (mPressed | 32) == 'p')
 		{
+			log("Player found hatch or cheated to next level");
 			mvprintw (h+2, w-7 , "CONGRATULATIONS");
 			mvprintw (h+3, w-14, "Press ENTER to enter stage %d", (++mStage) + 1); refresh();
 			timeout (-1); while (getch() != '\n'); timeout (0);
@@ -195,12 +211,12 @@ void Game::NormalGame (void)
 		}
 	}
 
-
+	
 
 	//----------------------------------------------------------------------------//
 	// Shutdown                                                                   //
 	//----------------------------------------------------------------------------//
-
+	log("Deleting assigned memory and exiting");
 	delete mWorld;
 	delete mPlayer;
 
